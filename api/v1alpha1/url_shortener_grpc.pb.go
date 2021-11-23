@@ -19,7 +19,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type URLShorteningClient interface {
 	// Creates short URLs from long URLs
-	ShortURLs(ctx context.Context, in *URLShortenerRequest, opts ...grpc.CallOption) (*URLShortenerResponse, error)
+	ShortURLs(ctx context.Context, in *ShortURLsRequest, opts ...grpc.CallOption) (*ShortURLsResponse, error)
 }
 
 type uRLShorteningClient struct {
@@ -30,8 +30,8 @@ func NewURLShorteningClient(cc grpc.ClientConnInterface) URLShorteningClient {
 	return &uRLShorteningClient{cc}
 }
 
-func (c *uRLShorteningClient) ShortURLs(ctx context.Context, in *URLShortenerRequest, opts ...grpc.CallOption) (*URLShortenerResponse, error) {
-	out := new(URLShortenerResponse)
+func (c *uRLShorteningClient) ShortURLs(ctx context.Context, in *ShortURLsRequest, opts ...grpc.CallOption) (*ShortURLsResponse, error) {
+	out := new(ShortURLsResponse)
 	err := c.cc.Invoke(ctx, "/webengineering.api.v1alpha1.URLShortening/ShortURLs", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -44,7 +44,7 @@ func (c *uRLShorteningClient) ShortURLs(ctx context.Context, in *URLShortenerReq
 // for forward compatibility
 type URLShorteningServer interface {
 	// Creates short URLs from long URLs
-	ShortURLs(context.Context, *URLShortenerRequest) (*URLShortenerResponse, error)
+	ShortURLs(context.Context, *ShortURLsRequest) (*ShortURLsResponse, error)
 	mustEmbedUnimplementedURLShorteningServer()
 }
 
@@ -52,7 +52,7 @@ type URLShorteningServer interface {
 type UnimplementedURLShorteningServer struct {
 }
 
-func (UnimplementedURLShorteningServer) ShortURLs(context.Context, *URLShortenerRequest) (*URLShortenerResponse, error) {
+func (UnimplementedURLShorteningServer) ShortURLs(context.Context, *ShortURLsRequest) (*ShortURLsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ShortURLs not implemented")
 }
 func (UnimplementedURLShorteningServer) mustEmbedUnimplementedURLShorteningServer() {}
@@ -69,7 +69,7 @@ func RegisterURLShorteningServer(s grpc.ServiceRegistrar, srv URLShorteningServe
 }
 
 func _URLShortening_ShortURLs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(URLShortenerRequest)
+	in := new(ShortURLsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -81,7 +81,7 @@ func _URLShortening_ShortURLs_Handler(srv interface{}, ctx context.Context, dec 
 		FullMethod: "/webengineering.api.v1alpha1.URLShortening/ShortURLs",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(URLShorteningServer).ShortURLs(ctx, req.(*URLShortenerRequest))
+		return srv.(URLShorteningServer).ShortURLs(ctx, req.(*ShortURLsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
