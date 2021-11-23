@@ -41,5 +41,6 @@ jobs:
         run: |
           git config user.name "$GITHUB_ACTOR"
           git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
-          git commit -am "feat: Update auto generated code"
+          git add -A
+          git commit -m "feat: Update auto generated code"
           git push
