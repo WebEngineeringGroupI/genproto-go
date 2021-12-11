@@ -20,6 +20,7 @@ const _ = grpc.SupportPackageIsVersion7
 type URLShorteningClient interface {
 	// Creates short URLs from long URLs
 	ShortURLs(ctx context.Context, opts ...grpc.CallOption) (URLShortening_ShortURLsClient, error)
+	BalanceURLs(ctx context.Context, in *BalanceURLsRequest, opts ...grpc.CallOption) (*BalanceURLsResponse, error)
 }
 
 type uRLShorteningClient struct {
@@ -61,12 +62,22 @@ func (x *uRLShorteningShortURLsClient) Recv() (*ShortURLsResponse, error) {
 	return m, nil
 }
 
+func (c *uRLShorteningClient) BalanceURLs(ctx context.Context, in *BalanceURLsRequest, opts ...grpc.CallOption) (*BalanceURLsResponse, error) {
+	out := new(BalanceURLsResponse)
+	err := c.cc.Invoke(ctx, "/webengineering.api.v1alpha1.URLShortening/BalanceURLs", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // URLShorteningServer is the server API for URLShortening service.
 // All implementations must embed UnimplementedURLShorteningServer
 // for forward compatibility
 type URLShorteningServer interface {
 	// Creates short URLs from long URLs
 	ShortURLs(URLShortening_ShortURLsServer) error
+	BalanceURLs(context.Context, *BalanceURLsRequest) (*BalanceURLsResponse, error)
 	mustEmbedUnimplementedURLShorteningServer()
 }
 
@@ -76,6 +87,9 @@ type UnimplementedURLShorteningServer struct {
 
 func (UnimplementedURLShorteningServer) ShortURLs(URLShortening_ShortURLsServer) error {
 	return status.Errorf(codes.Unimplemented, "method ShortURLs not implemented")
+}
+func (UnimplementedURLShorteningServer) BalanceURLs(context.Context, *BalanceURLsRequest) (*BalanceURLsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method BalanceURLs not implemented")
 }
 func (UnimplementedURLShorteningServer) mustEmbedUnimplementedURLShorteningServer() {}
 
@@ -116,13 +130,36 @@ func (x *uRLShorteningShortURLsServer) Recv() (*ShortURLsRequest, error) {
 	return m, nil
 }
 
+func _URLShortening_BalanceURLs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BalanceURLsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(URLShorteningServer).BalanceURLs(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/webengineering.api.v1alpha1.URLShortening/BalanceURLs",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(URLShorteningServer).BalanceURLs(ctx, req.(*BalanceURLsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // URLShortening_ServiceDesc is the grpc.ServiceDesc for URLShortening service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var URLShortening_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "webengineering.api.v1alpha1.URLShortening",
 	HandlerType: (*URLShorteningServer)(nil),
-	Methods:     []grpc.MethodDesc{},
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "BalanceURLs",
+			Handler:    _URLShortening_BalanceURLs_Handler,
+		},
+	},
 	Streams: []grpc.StreamDesc{
 		{
 			StreamName:    "ShortURLs",
